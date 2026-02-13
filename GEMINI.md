@@ -33,39 +33,43 @@ Do NOT trigger for: casual conversations, code-only files, config files, changel
 
 ### Step 3: Detect OS and Locate Scripts
 
-Find the autohackmd skill directory. Check these locations:
-- `~/.cursor/skills/autohackmd/`
-- `~/.openclaw/skills/autohackmd/`
-- The directory containing this GEMINI.md file
+Find the autohackmd skill directory. Check these paths in order and use the first that exists:
+1. `~/.cursor/skills/autohackmd/`
+2. `~/.openclaw/skills/autohackmd/`
+3. `~/git/autohackmd/`
+4. The directory containing this GEMINI.md file
 
-- **Linux / macOS**: Use `scripts/linux/*.sh`
-- **Windows**: Use `scripts/windows/*.ps1`
+Store the resolved absolute path as `SKILL_DIR`.
+
+- **Linux / macOS**: Use `${SKILL_DIR}/scripts/linux/*.sh`
+- **Windows**: Use `${SKILL_DIR}\scripts\windows\*.ps1`
 
 ### Step 4: Check Token
 
 **Linux/macOS:**
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_config.sh --verify
+bash "${SKILL_DIR}/scripts/linux/hackmd_config.sh" --verify
 ```
 
 **Windows:**
 ```powershell
-& "{skill_dir}\scripts\windows\hackmd_config.ps1" -Verify
+& "${SKILL_DIR}\scripts\windows\hackmd_config.ps1" -Verify
 ```
 
 If no token, guide user to https://hackmd.io/settings#api to create one, then:
-- `hackmd_config.sh --token <token>` or set `HACKMD_API_TOKEN` env var
+- `bash "${SKILL_DIR}/scripts/linux/hackmd_config.sh" --token <token>`
+- Or set `HACKMD_API_TOKEN` env var
 
 ### Step 5: Upload to HackMD
 
 **Linux/macOS:**
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_upload.sh --file ~/mds/{category}/{filename}.md --tags "{category}"
+bash "${SKILL_DIR}/scripts/linux/hackmd_upload.sh" --file ~/mds/{category}/{filename}.md --tags "{category}"
 ```
 
 **Windows:**
 ```powershell
-& "{skill_dir}\scripts\windows\hackmd_upload.ps1" -File "~/mds/{category}/{filename}.md" -Tags "{category}"
+& "${SKILL_DIR}\scripts\windows\hackmd_upload.ps1" -File "~/mds/{category}/{filename}.md" -Tags "{category}"
 ```
 
 Permissions: readPermission=guest (everyone reads), writePermission=owner (only you edit).
@@ -89,13 +93,16 @@ Permissions: readPermission=guest (everyone reads), writePermission=owner (only 
 
 ### Step 7: Handle Follow-up Requests
 
-**Change permissions**: `hackmd_update.sh --note-id {id} --read-perm {val} --write-perm {val}`
+**Change permissions**:
+```bash
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {id} --read-perm {val} --write-perm {val}
+```
 Valid values: `owner`, `signed_in`, `guest`
 
 **Change tags**: Update `###### tags:` line in local file, then upload updated content.
 
-**Update content**: `hackmd_update.sh --note-id {id} --file {path}`
+**Update content**: `bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {id} --file {path}`
 
-**Delete note**: `hackmd_update.sh --note-id {id} --delete`
+**Delete note**: `bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {id} --delete`
 
-For Windows, use `.ps1` scripts with `-NoteId`, `-ReadPerm`, `-WritePerm`, `-File`, `-Delete` parameters.
+For Windows, use `& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1"` with `-NoteId`, `-ReadPerm`, `-WritePerm`, `-File`, `-Delete` parameters.

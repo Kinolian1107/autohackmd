@@ -10,7 +10,6 @@ metadata:
     emoji: "📝"
     requires:
       anyBins: ["curl", "pwsh"]
-      env: ["HACKMD_API_TOKEN"]
     primaryEnv: "HACKMD_API_TOKEN"
     os: ["darwin", "linux", "win32"]
 ---
@@ -57,15 +56,20 @@ Save the markdown file to `~/mds/{category}/`:
 
 ### Step 3: Detect OS and Locate Scripts
 
-Determine the script path based on the current OS. The `AUTOHACKMD_SKILL_DIR` variable should point to this skill's root directory.
+First, determine the absolute path of this skill's root directory. Use these methods in order:
 
-- **Linux / macOS**: Use `scripts/linux/*.sh`
-- **Windows**: Use `scripts/windows/*.ps1`
+1. If `AUTOHACKMD_SKILL_DIR` env var is set, use it
+2. Check the directory where this SKILL.md file is located
+3. Check these common locations and use the first one that exists:
+   - `~/.cursor/skills/autohackmd/`
+   - `~/.openclaw/skills/autohackmd/`
+   - `~/git/autohackmd/`
 
-If the skill directory is unknown, check these common locations:
-- `~/.cursor/skills/autohackmd/`
-- `~/.openclaw/skills/autohackmd/`
-- The repo where this file resides
+Store the resolved absolute path as `SKILL_DIR` for all subsequent script calls.
+
+Then select scripts by OS:
+- **Linux / macOS**: Use `${SKILL_DIR}/scripts/linux/*.sh`
+- **Windows**: Use `${SKILL_DIR}\scripts\windows\*.ps1`
 
 ### Step 4: Check Token
 
@@ -73,31 +77,32 @@ Before uploading, verify the HackMD API token exists:
 
 **Linux/macOS:**
 ```bash
-bash scripts/linux/hackmd_config.sh --verify
+bash "${SKILL_DIR}/scripts/linux/hackmd_config.sh" --verify
 ```
 
 **Windows:**
 ```powershell
-.\scripts\windows\hackmd_config.ps1 -Verify
+& "${SKILL_DIR}\scripts\windows\hackmd_config.ps1" -Verify
 ```
 
 If no token is found, guide the user:
 1. Go to https://hackmd.io/settings#api
 2. Click "Create API token"
 3. Copy the token
-4. Run: `hackmd_config.sh --token <token>` or `.\hackmd_config.ps1 -Token <token>`
-5. Alternatively, set `HACKMD_API_TOKEN` environment variable
+4. Run: `bash "${SKILL_DIR}/scripts/linux/hackmd_config.sh" --token <token>`
+5. Or on Windows: `& "${SKILL_DIR}\scripts\windows\hackmd_config.ps1" -Token <token>`
+6. Or set `HACKMD_API_TOKEN` environment variable
 
 ### Step 5: Upload to HackMD
 
 **Linux/macOS:**
 ```bash
-bash scripts/linux/hackmd_upload.sh --file ~/mds/{category}/{filename}.md --tags "{category}"
+bash "${SKILL_DIR}/scripts/linux/hackmd_upload.sh" --file ~/mds/{category}/{filename}.md --tags "{category}"
 ```
 
 **Windows:**
 ```powershell
-.\scripts\windows\hackmd_upload.ps1 -File "~/mds/{category}/{filename}.md" -Tags "{category}"
+& "${SKILL_DIR}\scripts\windows\hackmd_upload.ps1" -File "~/mds/{category}/{filename}.md" -Tags "{category}"
 ```
 
 The script will:
@@ -136,9 +141,9 @@ Listen for these user commands and execute accordingly:
 **Change permissions** (修改權限 / change permissions):
 ```bash
 # Linux/macOS
-bash scripts/linux/hackmd_update.sh --note-id {noteId} --read-perm {value} --write-perm {value}
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --read-perm {value} --write-perm {value}
 # Windows
-.\scripts\windows\hackmd_update.ps1 -NoteId {noteId} -ReadPerm {value} -WritePerm {value}
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -ReadPerm {value} -WritePerm {value}
 ```
 Valid values: `owner`, `signed_in`, `guest`
 
@@ -146,25 +151,25 @@ Valid values: `owner`, `signed_in`, `guest`
 - Read the local file, update the `###### tags:` line, then:
 ```bash
 # Linux/macOS
-bash scripts/linux/hackmd_update.sh --note-id {noteId} --file {local-file-path}
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --file {local-file-path}
 # Windows
-.\scripts\windows\hackmd_update.ps1 -NoteId {noteId} -File {local-file-path}
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -File {local-file-path}
 ```
 
 **Update content** (更新內容 / update content):
 ```bash
 # Linux/macOS
-bash scripts/linux/hackmd_update.sh --note-id {noteId} --file {local-file-path}
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --file {local-file-path}
 # Windows
-.\scripts\windows\hackmd_update.ps1 -NoteId {noteId} -File {local-file-path}
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -File {local-file-path}
 ```
 
 **Delete note** (刪除筆記 / delete note):
 ```bash
 # Linux/macOS
-bash scripts/linux/hackmd_update.sh --note-id {noteId} --delete
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --delete
 # Windows
-.\scripts\windows\hackmd_update.ps1 -NoteId {noteId} -Delete
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -Delete
 ```
 
 ## References

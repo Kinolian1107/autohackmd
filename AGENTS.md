@@ -35,10 +35,16 @@ Do NOT trigger for: casual conversations, code-only files, config files, changel
 
 ### Step 3: Detect OS and Locate Scripts
 
-Find the autohackmd skill directory (check `~/.cursor/skills/autohackmd/`, `~/.openclaw/skills/autohackmd/`, or the directory containing this file).
+Find the autohackmd skill directory. Check these paths in order and use the first one that exists:
+1. `~/.cursor/skills/autohackmd/`
+2. `~/.openclaw/skills/autohackmd/`
+3. `~/git/autohackmd/`
+4. The directory containing this AGENTS.md file
 
-- **Linux / macOS**: Use `scripts/linux/*.sh`
-- **Windows**: Use `scripts/windows/*.ps1`
+Store the resolved absolute path as `SKILL_DIR`.
+
+- **Linux / macOS**: Use `${SKILL_DIR}/scripts/linux/*.sh`
+- **Windows**: Use `${SKILL_DIR}\scripts\windows\*.ps1`
 
 ### Step 4: Check Token
 
@@ -46,28 +52,29 @@ Before uploading, verify the HackMD API token:
 
 **Linux/macOS:**
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_config.sh --verify
+bash "${SKILL_DIR}/scripts/linux/hackmd_config.sh" --verify
 ```
 
 **Windows:**
 ```powershell
-& "{skill_dir}\scripts\windows\hackmd_config.ps1" -Verify
+& "${SKILL_DIR}\scripts\windows\hackmd_config.ps1" -Verify
 ```
 
 If no token, guide user to https://hackmd.io/settings#api to create one, then:
-- `hackmd_config.sh --token <token>` or `.\hackmd_config.ps1 -Token <token>`
+- `bash "${SKILL_DIR}/scripts/linux/hackmd_config.sh" --token <token>`
+- Or on Windows: `& "${SKILL_DIR}\scripts\windows\hackmd_config.ps1" -Token <token>`
 - Or set `HACKMD_API_TOKEN` environment variable
 
 ### Step 5: Upload to HackMD
 
 **Linux/macOS:**
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_upload.sh --file ~/mds/{category}/{filename}.md --tags "{category}"
+bash "${SKILL_DIR}/scripts/linux/hackmd_upload.sh" --file ~/mds/{category}/{filename}.md --tags "{category}"
 ```
 
 **Windows:**
 ```powershell
-& "{skill_dir}\scripts\windows\hackmd_upload.ps1" -File "~/mds/{category}/{filename}.md" -Tags "{category}"
+& "${SKILL_DIR}\scripts\windows\hackmd_upload.ps1" -File "~/mds/{category}/{filename}.md" -Tags "{category}"
 ```
 
 Permissions are automatically set to:
@@ -101,7 +108,10 @@ Tell the user the share link and available follow-up commands:
 
 **Change permissions** (修改權限):
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_update.sh --note-id {noteId} --read-perm {value} --write-perm {value}
+# Linux/macOS
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --read-perm {value} --write-perm {value}
+# Windows
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -ReadPerm {value} -WritePerm {value}
 ```
 Valid values: `owner`, `signed_in`, `guest`
 
@@ -109,12 +119,16 @@ Valid values: `owner`, `signed_in`, `guest`
 
 **Update content** (更新內容):
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_update.sh --note-id {noteId} --file {local-file-path}
+# Linux/macOS
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --file {local-file-path}
+# Windows
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -File {local-file-path}
 ```
 
 **Delete note** (刪除筆記):
 ```bash
-bash {skill_dir}/scripts/linux/hackmd_update.sh --note-id {noteId} --delete
+# Linux/macOS
+bash "${SKILL_DIR}/scripts/linux/hackmd_update.sh" --note-id {noteId} --delete
+# Windows
+& "${SKILL_DIR}\scripts\windows\hackmd_update.ps1" -NoteId {noteId} -Delete
 ```
-
-For Windows, use the corresponding `.ps1` scripts with `-NoteId`, `-ReadPerm`, `-WritePerm`, `-File`, `-Delete` parameters.
