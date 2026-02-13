@@ -1,0 +1,20 @@
+# Environment variables
+.env
+
+# Config files with tokens
+config.json
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Logs
+*.log
